@@ -1,17 +1,40 @@
+import { CountryCode } from './countries';
+
 // https://github.com/HS-Datadesk/koronavirus-avoindata
 
-type Case = {
+export type HealthCareDistrict =
+  | 'Etelä-Karjala'
+  | 'Etelä-Pohjanmaa'
+  | 'Etelä-Savo'
+  | 'HUS'
+  | 'Itä-Savo'
+  | 'Kainuu'
+  | 'Kanta-Häme'
+  | 'Keski-Pohjanmaa'
+  | 'Keski-Suomi'
+  | 'Lappi'
+  | 'Länsi-Pohja'
+  | 'Pirkanmaa'
+  | 'Pohjois-Karjala'
+  | 'Pohjois-Pohjanmaa'
+  | 'Pohjois-Savo'
+  | 'Päijät-Häme'
+  | 'Satakunta'
+  | 'Vaasa'
+  | 'Varsinais-Suomi';
+
+export type Case = {
   id: number;
   date: string;
-  healthCareDistrict: string;
+  healthCareDistrict: HealthCareDistrict;
 };
 
-type ConfirmedCase = Case & {
+export type ConfirmedCase = Case & {
   infectionSource: number | 'unknown' | 'related to earlier';
-  infectionSourceCountry: string | null;
+  infectionSourceCountry: CountryCode | null;
 };
 
-type HSApiResponse = {
+export type HSApiResponse = {
   confirmed: ConfirmedCase[];
   deaths: Case[];
   recovered: Case[];
