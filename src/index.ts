@@ -1,11 +1,19 @@
+import discord from 'discord.js';
 import fetch from 'node-fetch';
 
 import { getTotalCounts, parseStatisticsFromData } from './responseParsers';
 import { HSApiResponse } from './types/hsApiResponse';
 import * as storage from './storage';
+import { config } from './config';
+import { handleMessage } from './discordActions';
 
-// In milliseconds
-const API_POLL_INTERVAL = 60 * 1000;
+const client = new discord.Client();
+
+client.on('ready', () => {
+  console.log('Successfully logged in to Discord');
+});
+
+client.on('message', handleMessage);
 
 const main = async (): Promise<void> => {
   // Get old data from storage, so it can be compared with new API response
@@ -29,7 +37,9 @@ const main = async (): Promise<void> => {
   // Update new data to storage
   await storage.updateAPIData(counts, stats);
 
-  setTimeout(main, API_POLL_INTERVAL);
+  setTimeout(main, config.apiPollInterval);
 };
 
+// Run the software by setting up Discord and starting API call
+client.login(config.discord.token);
 main();
