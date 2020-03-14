@@ -12,7 +12,7 @@ export type CaseAmounts = {
   recovered: number;
 };
 
-export const totalCounts = (data: HSApiResponse): CaseAmounts => {
+export const getTotalCounts = (data: HSApiResponse): CaseAmounts => {
   return {
     confirmed: data.confirmed.length,
     deaths: data.deaths.length,
