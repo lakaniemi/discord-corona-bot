@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-import { totalCounts, casesByRegion } from './responseParsers';
+import { totalCounts, parseStatisticsFromData } from './responseParsers';
 import { HSApiResponse } from './types/hsApiResponse';
 
 const main = async (): Promise<void> => {
@@ -10,7 +10,7 @@ const main = async (): Promise<void> => {
   const result: HSApiResponse = await apiResponse.json();
 
   console.log(totalCounts(result));
-  console.log(casesByRegion(result));
+  console.log(parseStatisticsFromData(result));
 
   //setTimeout(main, 30000);
 };
