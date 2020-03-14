@@ -40,7 +40,7 @@ type CaseAmountByInfectionCountry = {
 
 // We don't really care about recoveries / deaths based on infection country,
 // only about the counts where the infection was from
-export const countCasesByInfectionCountry = (
+const countCasesByInfectionCountry = (
   data: ConfirmedCase[],
 ): CaseAmountByInfectionCountry =>
   data.reduce((result: CaseAmountByInfectionCountry, current) => {
@@ -65,6 +65,23 @@ export const countCasesByInfectionCountry = (
     };
   }, {});
 
+type NewCasesByDate = { [date: string]: number };
+
+const countNewCasesByDate = (data: ConfirmedCase[]): NewCasesByDate =>
+  data
+    .sort((a, b) => (a.date < b.date ? -1 : 1))
+    .reduce((result: NewCasesByDate, current) => {
+      // Let's ignore times and just take the date part. They are in UTC, but
+      // none of the cases seem to be near midnight, so I think there's enough
+      // accuracy even if we ignore timezones.
+      const date = current.date.split('T')[0];
+
+      return {
+        ...result,
+        [date]: (result[date] || 0) + 1,
+      };
+    }, {});
+
 export type CaseStatistics = {
   amountByRegion: {
     confirmed: CaseAmountByRegion;
@@ -72,6 +89,7 @@ export type CaseStatistics = {
     recovered: CaseAmountByRegion;
   };
   amountByInfectionCountry: CaseAmountByInfectionCountry;
+  newCasesByDate: NewCasesByDate;
 };
 
 export const parseStatisticsFromData = (
@@ -83,4 +101,5 @@ export const parseStatisticsFromData = (
     recovered: countCasesByRegion(data.recovered),
   },
   amountByInfectionCountry: countCasesByInfectionCountry(data.confirmed),
+  newCasesByDate: countNewCasesByDate(data.confirmed),
 });
