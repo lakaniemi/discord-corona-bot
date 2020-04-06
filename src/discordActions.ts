@@ -18,14 +18,11 @@ const formStatusMessage = (
 
   const confirmedInfected = statistics.amountByRegion.confirmed;
 
-  const infectedByRegionString = Object.keys(confirmedInfected)
+  const infectedByRegionString = (Object.keys(
+    confirmedInfected,
+  ) as HealthCareDistrict[])
     .sort((a, b) =>
-      // This is kind of awkward... But did not manage to quiet down TS any
-      // other way. TODO: fix?
-      (confirmedInfected[a as HealthCareDistrict] || 0) <
-      (confirmedInfected[b as HealthCareDistrict] || 0)
-        ? 1
-        : -1,
+      (confirmedInfected[a] || 0) < (confirmedInfected[b] || 0) ? 1 : -1,
     )
     .reduce(
       (result, currentRegion) =>
