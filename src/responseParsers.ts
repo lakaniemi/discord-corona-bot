@@ -4,7 +4,6 @@ import {
   Case,
   ConfirmedCase,
 } from './types/hsApiResponse';
-import { CountryCode, countries } from './types/countries';
 
 export type CaseAmounts = {
   confirmed: number;
@@ -34,37 +33,6 @@ const countCasesByRegion = (data: Case[]): CaseAmountByRegion =>
     {},
   );
 
-type CaseAmountByInfectionCountry = {
-  [country in CountryCode]?: number;
-} & { unknown?: number };
-
-// We don't really care about recoveries / deaths based on infection country,
-// only about the counts where the infection was from
-const countCasesByInfectionCountry = (
-  data: ConfirmedCase[],
-): CaseAmountByInfectionCountry =>
-  data.reduce((result: CaseAmountByInfectionCountry, current) => {
-    let infectionSourceCountry: CountryCode | 'unknown';
-    if (!current.infectionSourceCountry) {
-      infectionSourceCountry = 'unknown';
-    } else if (countries[current.infectionSourceCountry] === undefined) {
-      // Special case: data is invalid, and does not contain valid alpha-3
-      // country code. During testing, there was one case like this. Let's log
-      // them so reporting issue is easier.
-      console.warn(
-        'DATA ISSUE: Unknown country code: ' + current.infectionSourceCountry,
-      );
-      infectionSourceCountry = 'unknown';
-    } else {
-      infectionSourceCountry = current.infectionSourceCountry;
-    }
-
-    return {
-      ...result,
-      [infectionSourceCountry]: (result[infectionSourceCountry] || 0) + 1,
-    };
-  }, {});
-
 type NewCasesByDate = { [date: string]: number };
 
 const countNewCasesByDate = (data: ConfirmedCase[]): NewCasesByDate =>
@@ -88,7 +56,6 @@ export type CaseStatistics = {
     deaths: CaseAmountByRegion;
     recovered: CaseAmountByRegion;
   };
-  amountByInfectionCountry: CaseAmountByInfectionCountry;
   newCasesByDate: NewCasesByDate;
 };
 
@@ -100,6 +67,5 @@ export const parseStatisticsFromData = (
     deaths: countCasesByRegion(data.deaths),
     recovered: countCasesByRegion(data.recovered),
   },
-  amountByInfectionCountry: countCasesByInfectionCountry(data.confirmed),
   newCasesByDate: countNewCasesByDate(data.confirmed),
 });
