@@ -8,11 +8,13 @@ import cloneDeep from 'lodash.clonedeep';
 // TODO: if this gets bigger, consider using a real database.
 const saveFile = `${process.cwd()}/data.json`;
 
+export type DataStorageApiData = {
+  totalCounts: CaseAmounts;
+  statistics: CaseStatistics;
+};
+
 export type DataStorageFormat = {
-  apiData: {
-    totalCounts: CaseAmounts;
-    statistics: CaseStatistics;
-  } | null;
+  apiData: DataStorageApiData | null;
 };
 
 let store: DataStorageFormat = {

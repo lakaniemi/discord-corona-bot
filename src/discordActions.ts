@@ -6,10 +6,9 @@ import { HealthCareDistrict } from './types/hsApiResponse';
 const COMMAND_PREFIX = '!';
 
 const formStatusMessage = (
-  store: storage.DataStorageFormat,
-): discord.MessageEmbed | null => {
-  if (store.apiData === null) return null;
-  const { totalCounts, statistics } = store.apiData;
+  apiData: storage.DataStorageApiData,
+): discord.MessageEmbed => {
+  const { totalCounts, statistics } = apiData;
 
   const summary =
     `Currently **${totalCounts.confirmed}** people have been ` +
@@ -45,14 +44,35 @@ const formStatusMessage = (
       '',
     );
 
-  const embed = new discord.MessageEmbed()
+  return new discord.MessageEmbed()
     .setTitle('Corona status')
     .setColor(0xff0000)
     .setDescription(summary)
     .addField('Infected people by region', infectedByRegionString, true)
     .addField('Dead by region', deadByRegionString, true);
+};
 
-  return embed;
+const formDailyMessage = (
+  apiData: storage.DataStorageApiData,
+): discord.MessageEmbed => {
+  const { statistics } = apiData;
+
+  const content = Object.keys(statistics.newCasesByDate)
+    // Descending alphabetical order
+    .sort((a, b) => (a < b ? 1 : -1))
+    // Last 30 days (well, not necessarily, but let's take last 30 items from
+    // the array for easiness)
+    .slice(0, 30)
+    .reduce(
+      (result, date) =>
+        result + `${date}: **${statistics.newCasesByDate[date]}**\n`,
+      '',
+    );
+
+  return new discord.MessageEmbed()
+    .setTitle('New confirmed infections per day (last 30 daily reports)')
+    .setColor(0x0000ff)
+    .setDescription(content);
 };
 
 export const handleMessage = (
@@ -68,8 +88,13 @@ export const handleMessage = (
     // const args = split.slice(1);
 
     if (command === 'status') {
-      const response = formStatusMessage(store);
-      if (response) message.channel?.send(response);
+      const response = formStatusMessage(store.apiData);
+      message.channel?.send(response);
+    }
+
+    if (command === 'daily') {
+      const response = formDailyMessage(store.apiData);
+      message.channel?.send(response);
     }
   }
 };
