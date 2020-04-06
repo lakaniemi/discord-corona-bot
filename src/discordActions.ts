@@ -1,7 +1,6 @@
 import discord from 'discord.js';
 import * as storage from './storage';
 import { HealthCareDistrict } from './types/hsApiResponse';
-import { CountryCode } from './types/countries';
 
 // TODO: Make this customizable per server
 const COMMAND_PREFIX = '!';
@@ -37,36 +36,11 @@ const formStatusMessage = (
       '',
     );
 
-  const infectionSourceCountryString = Object.keys(
-    statistics.amountByInfectionCountry,
-  )
-    .sort((a, b) => {
-      if (a === 'unknown' || b === 'unknown') {
-        return a === 'unknown' ? 1 : -1;
-      }
-
-      // This is kind of awkward... But did not manage to quiet down TS any
-      // other way. TODO: fix?
-      return (statistics.amountByInfectionCountry[a as CountryCode] || 0) <
-        (statistics.amountByInfectionCountry[b as CountryCode] || 0)
-        ? 1
-        : -1;
-    })
-    .reduce(
-      (result, currentCountry) =>
-        result +
-        `${currentCountry}: **${
-          statistics.amountByInfectionCountry[currentCountry as CountryCode]
-        }**\n`,
-      '',
-    );
-
   const embed = new discord.MessageEmbed()
     .setTitle('Corona status')
     .setColor(0xff0000)
     .setDescription(summary)
-    .addField('Infected people by region', infectedByRegionString, true)
-    .addField('Infection source (country)', infectionSourceCountryString, true);
+    .addField('Infected people by region', infectedByRegionString, true);
 
   return embed;
 };
