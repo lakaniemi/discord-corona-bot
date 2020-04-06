@@ -33,11 +33,24 @@ const formStatusMessage = (
       '',
     );
 
+  const confirmedDead = statistics.amountByRegion.deaths;
+
+  const deadByRegionString = Object.keys(confirmedDead)
+    .sort((a, b) =>
+      (confirmedDead[a] || 0) < (confirmedDead[b] || 0) ? 1 : -1,
+    )
+    .reduce(
+      (result, currentRegion) =>
+        result + `${currentRegion}: **${confirmedDead[currentRegion]}**\n`,
+      '',
+    );
+
   const embed = new discord.MessageEmbed()
     .setTitle('Corona status')
     .setColor(0xff0000)
     .setDescription(summary)
-    .addField('Infected people by region', infectedByRegionString, true);
+    .addField('Infected people by region', infectedByRegionString, true)
+    .addField('Dead by region', deadByRegionString, true);
 
   return embed;
 };

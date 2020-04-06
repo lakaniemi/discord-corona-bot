@@ -3,6 +3,7 @@ import {
   HealthCareDistrict,
   Case,
   ConfirmedCase,
+  DeathCase,
 } from './types/hsApiResponse';
 
 export type CaseAmounts = {
@@ -33,6 +34,22 @@ const countCasesByRegion = (data: Case[]): CaseAmountByRegion =>
     {},
   );
 
+type DeathAmountByRegion = {
+  [area: string]: number;
+};
+
+// TODO: this is kind of duplicate of countCasesByRegion in terms of code, but
+// typing it to be more general seemed quite troublesome. Therefore, let's just
+// use a separate function for now.
+const countDeathsByRegion = (data: DeathCase[]): DeathAmountByRegion =>
+  data.reduce(
+    (result: DeathAmountByRegion, current) => ({
+      ...result,
+      [current.area]: (result[current.area] || 0) + 1,
+    }),
+    {},
+  );
+
 type NewCasesByDate = { [date: string]: number };
 
 const countNewCasesByDate = (data: ConfirmedCase[]): NewCasesByDate =>
@@ -53,7 +70,7 @@ const countNewCasesByDate = (data: ConfirmedCase[]): NewCasesByDate =>
 export type CaseStatistics = {
   amountByRegion: {
     confirmed: CaseAmountByRegion;
-    deaths: CaseAmountByRegion;
+    deaths: DeathAmountByRegion;
     recovered: CaseAmountByRegion;
   };
   newCasesByDate: NewCasesByDate;
@@ -64,7 +81,7 @@ export const parseStatisticsFromData = (
 ): CaseStatistics => ({
   amountByRegion: {
     confirmed: countCasesByRegion(data.confirmed),
-    deaths: countCasesByRegion(data.deaths),
+    deaths: countDeathsByRegion(data.deaths),
     recovered: countCasesByRegion(data.recovered),
   },
   newCasesByDate: countNewCasesByDate(data.confirmed),
